@@ -1,0 +1,72 @@
+1. Test driven development was followed
+
+
+{Block.js} =>
+This is the buiding block of the entire blockchain.
+Structure [timestamp, lastHash, hash, data, nonce, difficulty]
+
+The difficulty and amount feild were created for a proof of work system for how quickly new blocks can be created.
+
+Genesis block: Initial dummy block of the blockchain wihth hard coded values allowing the blockchain to start.
+
+Mine Block function: Allows to add new block to the existing blockchain.
+Cryptographic security: Hash method -> This method takes in any number of inputs, it will sort them, stringify those inputs to
+track any changes to objects and it creates a unique hash based on that.
+
+Even if a single charecter in the data changes, the resulting hash would be completely different from the original hash.
+This allows to link blocks together in a blockchain class.
+
+blockchain/index.js: Blockchain collects multiple blocks together in a chain array. The last block hash feild should contain the 
+hash of the previous block hence when a new block is added last hash reference is added.
+
+Chain validation involves 2 checks:
+	1. The lastHash of each block must be valid
+	2. Defining the difficulty level of each block based on the number of leading zeros using the cryptoHash function
+	3. The generated hash based on all the block feilds should be correct according to the validated hash. No one should be 
+		able to break or tamper the data within the blocks.
+	4. Transactional data validation
+	5. Chain replacement: 'replaceChain' mmethod, if the incoming chain is longer than the current chain and is valid, then 
+				the old chain should be replaced with the new chain. The longer the blockchain gets the hard it 
+				will be to tamper the data
+	6. ProofOfWork: Mine block function allows to spend CPU power to find a valid hash to add a new block to the blockchain.
+			The valid hash must need a difficulty requirement. The requirement is that if there are certain number of leading 
+			zero bits when it comes to the actual hash value. The difficulty is adjustable. Averaging the rate at which the blocks
+			gets mined in the system to come close to a set mine rate. As the difficulty raises, the miners can be 
+			slowed down. In contrast of the difficulty is lowered, miners can find the valid hashes more quickly.
+			This system prevents an attack called "The 51% attack". In this attack on blockchain node in the blockchain network has 
+			the mmajority of the computational power. They only need 51% to have the majority and with this power miners, 
+			can build a chain that is in their favour. As its valid and longer, every member has to accept the chain.
+			In order to attempt such an attack, this proofofwork systemm makes it computationally expensive. 
+
+In order for the blockchain to be interactable, we use multiple request and response structures. Get requests allows to access the blocks. Post 
+request to mine a new block in the Blockchain. Transactions can be conducted i.e. transfer of crypto currencies(ex. bitcoins). 
+PubSub allows to broadcast the transactions on to the Blockchain network allowing other nodes to know about it. Blocks are broadcasted
+as they are added to the Blockchain. 
+
+	7. PubSub class: Publisher Subscriber paradigm for passing messages between servers. It has channels where subscribers listen for messages and 
+	publishers can broadcast their messages. 
+	8. Generate peer port functionality in the main index.js file allows to generate peers allowing multiple instances to be created of the Blockchain. 
+	9. Cryptocurrency: It starts with the wallet/index.js file. It is a way to allow users to interact with each other with cryptocurrencies. 
+			The wallets primary function is to hold the keyPair which cintains a private and a public key. The public key can be used as 
+			an address to receive currency on the system. THe private key must be kept serect. By using the private key and the key pair, 
+			the wallet has the capability of generating unique signatures for data. getPrivate() is not used because we don;t want to introduce 
+			any blinkered code paths where that can be leaked. 
+	10. Transaction objects: These are official records of currency exchange between two wallets. Input feild and an outputmap. The input map contains signature
+		from the official sender wallet and the outputmap contains any values that were conducted in the transactions. One value for the recepient and other value
+		for the recepient in the update function. 
+	11. Remaining balance: Records the current balance in the sender's wallet when transaction is officially added to the Blockchain. As multiple users start contributing 
+		these transactions we collect that data in a structure called the transaction pool. The transaction pool has an inner transaction map, it can set transactions, 
+		update existing ones on the same code path or even replace the entire transaction map if needed. 
+	12. Transaction-miner.js: Getting the valid transactions from the transaction-pool. A reward transaction feature of the class allows to give currency in the any form like bitcoins
+		by finding valid hash that consists of the valid transactions. Then it adds a block to the blockchain, broadcast its chain and clear its local traansaction pool. 
+		This allows the wallet to keep track of the wallet balance. 
+	13. In the wallet/index.js file, a calculateBalance menthod allows to balance that is the output amount for that wallet at its most recent transaction. In addition to any output amounts 
+		that it received in the blockchain history after that most recent trasaction. Finally the transaction data is validated. 
+	14. In blockchain/index.js file, validTransactionData method which enforces 4 main rules for the cryptocurrency.
+			i. When it comes to a block of transactions, there shouldn't be duplicate miner rewards in the block.
+			ii. The transaction should have a valid shape overall which s enforced with a valid transaction method, its input signature should be good and its output map should be formatted correctly
+				with an output total that matches the input amount.
+			iii. Miner reward should have the correct mining reward value as well. 
+			iv. Inout balances must be valid according to the blockchain history. 
+			v. There shouldn't be any identical transactions within a block. 
+Finally all the testing files allow to verify the credebility and assures that the bloackchain is working as expected. 
